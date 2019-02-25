@@ -1,0 +1,19 @@
+<workflow-app xmlns="uri:oozie:workflow:0.1" name="sqoop-action" >
+    <start to="sqoop_import"/>
+    	<action name="sqoop_import">
+        <shell xmlns="uri:oozie:shell-action:0.1">
+            <job-tracker>${jobTracker}</job-tracker>
+            <name-node>${nameNode}</name-node>
+
+              <exec>sample.sh</exec>
+ <file>/user/cloudera/lab-oozie-script/job/sample.sh</file>
+         </shell>
+        <ok to="end"/>
+        <error to="fail"/>
+    </action>
+    
+    <kill name="fail">
+        <message>Pig failed, error message[${wf:errorMessage(wf:lastErrorNode())}]</message>
+    </kill>
+    <end name="end"/>
+</workflow-app>

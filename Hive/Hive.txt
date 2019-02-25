@@ -1,0 +1,694 @@
+﻿CREATE DATABASE IF NOT EXISTS userdb;
+
+CREATE SCHEMA userdb;
+
+SHOW DATABASES;
+
+DROP SCHEMA userdb;
+
+DROP DATABASE IF EXISTS userdb CASCADE;
+
+Need To Create File As Employee.txt
+
+1201     Gopal          45000     Technical manager
+1202     Manisha        45000     Proof reader 
+1203     Masthanvali    40000     Technical writer 
+1204     Krian          40000     Hr Admin
+1205     Kranthi        30000     Op Admin 
+
+CREATE EMPLOYEE TABLE 
+
+EID INT
+NAME STRING
+SALARY FLOAT
+DESIGNATION STRING
+
+CREATE TABLE employee ( eid int, ename String, esalary int, edesignation String) ROW FORMAT DELIMITED FIELDS TERMINATED BY ‘\t’; 
+
+LOAD DATA local INPATH '/home/training/Employee.txt' 
+     INTO TABLE employee;
+ 
+LOAD DATA INPATH '/user/training/Employee.txt' 
+     INTO TABLE employee;
+
+Select * from employee;
+
+set hive.cli.print.header = true;
+
+Need To Create File As Cricket.txt
+
+Sachin	Ind	100
+Dravid	Ind	60
+Ponting	Aus	68
+Kallis	SA	70
+Tylor	NZ	25
+Cook	Eng	30
+
+CREATE CRICKET TABLE 
+
+NAME String
+Country String
+Run	int
+
+External Table Without Location :
+==========================================================================================================================================================
+
+CREATE EXTERNAL TABLE Cricket ( Name String, Country String, Run int ) ROW FORMAT DELIMITED FIELDS TERMINATED BY ‘\t’; 
+    
+External Table With Location :
+==========================================================================================================================================================
+
+CREATE TABLE IF NOT EXISTS Cricket ( NAME String, Country String, Run int )
+    ROW FORMAT DELIMITED
+    FIELDS TERMINATED BY ‘\t’ 
+    location '/user/training/Cricket'
+    
+LOAD DATA local INPATH '/home/training/Cricket.txt' 
+     INTO TABLE employee;
+
+LOAD DATA INPATH '/user/training/Cricket.txt' 
+     INTO TABLE employee;
+
+Alter Table Statement 
+==========================================================================================================================================================
+
+ALTER TABLE name RENAME TO new_name
+ALTER TABLE name ADD COLUMNS (col_spec[, col_spec ...])
+ALTER TABLE name DROP [COLUMN] 
+column_name
+ALTER TABLE name CHANGE column_name new_name new_type
+ALTER TABLE name REPLACE COLUMNS (col_spec[, col_spec ...])
+
+
+ALTER TABLE employee RENAME TO emp;
+
+ALTER TABLE employee CHANGE name ename String;
+
+ALTER TABLE employee CHANGE salary salary Double;
+
+ALTER TABLE employee ADD COLUMNS ( dept STRING COMMENT 'Department name');
+
+ALTER TABLE employee REPLACE COLUMNS ( eid INT    empid Int, ename STRING name String );
+
+
+Drop a Table : ( Difference between External and Internal Table )
+==========================================================================================================================================================
+
+DROP TABLE IF EXISTS employee;
+
+SHOW TABLES;
+
+Complex Type ::::
+==========================================================================================================================================================
+ARRAY:
+
+cat >arrayfile
+1,abc,40000,a$b$c,hyd
+2,def,3000,d$f,bang
+
+hive> create table Emoloye_Array (id int,name string,sal bigint,sub array<string>,city string)
+> row format delimited
+> fields terminated by ‘,’
+> collection items terminated by ‘$’;
+
+hive>select sub[2] from Emoloye_Array where id=1;
+
+hive>select sub[0] from Emoloye_Array;
+
+MAP:
+
+$ cat >mapfile
+1,abc,40000,a$b$c,pf#500$epf#200,hyd
+2,def,3000,d$f,pf#500,bang
+
+hive>create table Emoloye_Array_Map(id int,name string,sal bigint,sub array<string>,dud map<string,int>,city string)
+row format delimited
+fields terminated by ‘,’
+collection items terminated by ‘$’
+map keys terminated by ‘#’;
+
+hive> load data local inpath ‘/home/training/mapfile’ overwrite into table Emoloye_Array_Map;
+
+hive>select dud["pf"] from Emoloye_Array_Map;
+
+hive>select dud["pf"],dud["epf"] from Emoloye_Array_Map;
+
+STRUCT:
+
+cat >mapfile
+1,abc,40000,a$b$c,pf#500$epf#200,hyd$ap$500001
+2,def,3000,d$f,pf#500,bang$kar$600038
+
+hive> create table Emoloye_Array_Map_Stuc (id int,name string,sal bigint,sub array<string>,dud map<string,int>,addr struct<city:string,state:string,pin:bigint>)
+> row format delimited
+> fields terminated by ‘,’
+> collection items terminated by ‘$’
+> map keys terminated by ‘#’;
+
+hive> load data local inpath ‘/home/training/structfile’ into table Emoloye_Array_Map_Stuc;
+
+hive>select addr.city from Emoloye_Array_Map_Stuc;
+
+==========================================================================================================================================================
+Partitios of Hive :
+
+Need To Create File As Kolkata.txt
+
+1201     Gopal          45000     Technical Manager
+1202     Manisha        45000     Proof Reader	
+
+Need To Create File As Delhi.txt
+
+1203     Masthanvali    40000     Technical Writer
+1204     Krian          40000     Hr Admin
+
+Need To Create File As Mumbai.txt
+
+1205     Kranthi        30000     Op Admin 
+1206 	 Avishek	50000	  Developer
+
+CREATE EMPLOYEE TABLE 
+
+EID INT
+NAME STRING
+SALARY FLOAT
+DESIGNATION STRING
+
+CREATE TABLE employee ( eid int, ename String, esalary int, edesignation String)
+    partitioned by ( loc String ) 
+    ROW FORMAT DELIMITED
+    FIELDS TERMINATED BY '\t';
+	
+LOAD DATA INPATH '/home/training/Kolkata.txt' 
+     INTO TABLE employee
+     partition ( loc = 'Kolkata');
+
+LOAD DATA INPATH '/home/training/Delhi.txt' 
+     INTO TABLE employee
+     partition ( loc = 'Delhi');
+
+LOAD DATA INPATH '/home/training/Mumbai.txt' 
+     INTO TABLE employee
+     partition ( loc = 'Mumbai');
+
+
+Import Data from one table to another table
+==========================================================================================================================================================
+
+Need To Create File As Source.txt
+
+1201     Gopal          45000     Technical manager
+1202     Manisha        45000     Proof reader 
+1203     Masthanvali    40000     Technical writer 
+1204     Krian          40000     Hr Admin
+1205     Kranthi        30000     Op Admin 
+
+CREATE EMPLOYEE TABLE 
+
+EID INT
+NAME STRING
+SALARY FLOAT
+DESIGNATION STRING
+
+CREATE TABLE Source( eid int, ename String, esalary String, edesignation String)  ROW FORMAT DELIMITED    FIELDS TERMINATED BY '\t' ;
+
+LOAD DATA INPATH '/home/training/source.txt' 
+     INTO TABLE Source;
+ 
+LOAD DATA LOCAL INPATH '/user/training/source.txt' 
+     INTO TABLE Source;
+
+Select * from source;
+
+CREATE TABLE Target ( id int, name String, salary String, desigation String)
+    ROW FORMAT DELIMITED FIELDS TERMINATED BY '\t';
+
+insert overwrite table Target select eid,ename,esalary,edesignation from Source;
+
+insert table Target as select * from Source;
+
+Exercise :
+==========================================================================================================================================================
+For partiotion table , how we can do.
+
+
+Operator :::
+==========================================================================================================================================================
+
+Relation Operator :
+==========================================================================================================================================================
+Need To Create File As Empl.txt
+
+7369,SMITH,CLERK,7902,800,,20
+7499,ALLEN,SALESMAN,7698,1600,300,30
+7521,WARD,SALESMAN,7698,1250,500,30
+7566,JONES,MANAGER,7839,2975,,20
+7654,MARTIN,SALESMAN,7698,1250,1400,30
+7698,BLAKE,MANAGER,7839,2850,,30
+7782,CLARK,MANAGER,7839,2450,,10
+7788,SCOTT,ANALYST,7566,3000,,20
+7839,KING,PRESIDENT,,5000,,10
+7844,TURNER,SALESMAN,7698,1500,0,30
+7876,ADAMS,CLERK,7788,1100,,20
+7900,JAMES,CLERK,7698,950,,30
+7902,FORD,ANALYST,7566,3000,,20
+7934,MILLER,CLERK,7782,1300,,10
+
+EMPNO NUMBER(4),
+ENAME VARCHAR2(10),
+JOB VARCHAR2(9),
+MGR NUMBER(4),
+SAL NUMBER(7,2),
+COMM NUMBER(7,2),
+DEPTNO NUMBER(2)
+
+CREATE TABLE employee( EMPNO int, ENAME String, JOB String, MGR int, SAL int, COMM int, DEPTNO int ) ROW FORMAT DELIMITED FIELDS TERMINATED BY '\t';
+
+Load data local inpath '/home/training/empl.txt'
+	into table employee;
+
+SELECT * FROM employee WHERE Id=1205;
+
+SELECT * FROM employee WHERE Salary>=40000;
+
+Arithmetic Operators
+==========================================================================================================================================================
+
+SELECT 20+30 ADD FROM employee;
+
+
+Logical Operators
+==========================================================================================================================================================
+
+SELECT * FROM employee WHERE Salary>40000 && Dept=TP;
+
+
+Built In Functions
+==========================================================================================================================================================
+
+SELECT round(2.6) from employee;
+SELECT floor(2.6) from employee;
+SELECT ceil(2.6) from employee;
+
+Aggregate Funtions :
+==========================================================================================================================================================
+
+Avg , count , max , min,..
+
+Whre cluase , order by cluase , group by cluase::
+==========================================================================================================================================================
+
+SELECT * FROM employee WHERE salary>30000;
+SELECT Id,Name, Dept FROM employee ORDER BY DEPT;
+SELECT Dept,count(*) FROM employee GROUP BY DEPT;
+
+
+Hive Join:::
+==========================================================================================================================================================
+
+Inner Join  ( Eui-Join, non eqi-join , self join )
+
+
+
+Need To Create File As Empl.txt
+
+7369,SMITH,CLERK,7902,800,,20
+7499,ALLEN,SALESMAN,7698,1600,300,30
+7521,WARD,SALESMAN,7698,1250,500,30
+7566,JONES,MANAGER,7839,2975,,20
+7654,MARTIN,SALESMAN,7698,1250,1400,30
+7698,BLAKE,MANAGER,7839,2850,,30
+7782,CLARK,MANAGER,7839,2450,,10
+7788,SCOTT,ANALYST,7566,3000,,20
+7839,KING,PRESIDENT,,5000,,10
+7844,TURNER,SALESMAN,7698,1500,0,30
+7876,ADAMS,CLERK,7788,1100,,20
+7900,JAMES,CLERK,7698,950,,50
+7902,FORD,ANALYST,7566,3000,,60
+7934,MILLER,CLERK,7782,1300,,50
+
+
+EMPNO NUMBER(4),
+ENAME VARCHAR2(10),
+JOB VARCHAR2(9),
+MGR NUMBER(4),
+SAL NUMBER(7,2),
+COMM NUMBER(7,2),
+DEPTNO NUMBER(2)
+
+CREATE TABLE IF NOT EXISTS Source( EMPNO int, ENAME String, JOB String, MGR int, SAL int, COMM int, DEPTNO int )
+ -- COMMENT ‘Employee details’
+    ROW FORMAT DELIMITED
+    FIELDS TERMINATED BY ‘\t’ LINES TERMINATED BY ‘\n’
+ --STORED AS TEXTFILE;
+
+Need To Create File As Dept.txt
+
+10,ACCOUNTING,NEY WORK
+20,RESEARCH,DALLAS
+30,SALES,CHICAGO
+40,OPERATIONS,BOSTON
+
+DEPTNO DNAME LOC
+
+CREATE TABLE IF NOT EXISTS Dept ( DEPTNO int, DNAME String, LOC String )
+ -- COMMENT ‘Employee details’
+    ROW FORMAT DELIMITED
+    FIELDS TERMINATED BY ‘\t’ LINES TERMINATED BY ‘\n’
+ --STORED AS TEXTFILE;
+
+
+Inner Join :
+==========================================================================================================================================================
+
+select empl.*, dept.* from empl join dept on ( empl.deptno = dept.deptno );
+
+
+Outer Join :
+==========================================================================================================================================================
+
+
+select empl.*, dept.* from empl left outer join dept on ( empl.deptno = dept.deptno );
+
+
+
+select empl.*, dept.* from empl right outer join dept on ( empl.deptno = dept.deptno );
+
+
+
+select empl.*, dept.* from empl full outer join dept on ( empl.deptno = dept.deptno );
+
+
+
+Hive Doesnot support IN Subquires :
+==========================================================================================================================================================
+
+Select * from empl where empl.id IN ( Select id from dept );
+
+select *  from empl left semi join dept on ( empl.deptno = dept.deptno );
+
+
+
+UDF in Hive :
+===========================================================================
+
+Create table Fruits.txt
+
+1	Mango	100
+2	 Apple	200
+3	  Grape	300
+4	Banana	50
+5	Guava	20
+
+
+CREATE TABLE IF NOT EXISTS Fruits ( id int, name String, price int )
+    ROW FORMAT DELIMITED
+    FIELDS TERMINATED BY '\t'; 
+ 
+ 
+LOAD DATA INPATH '/home/training/Fruits.txt' 
+     OVERWRITE INTO TABLE Fruits;
+
+select name from fruits;	 
+	 
+Hive > add jar /home/training/hive-example.jar;
+
+Hive > create temporary function trimfunction as 'trimf';
+
+select trimf( name ) from fruits;
+ 
+=============================================================================
+
+Create a file name student_record.txt
+
+101	Tom	9	358.0	85.0	95.0	86.0	92.0	2015
+102	Jerry	9	360.0	90.0	90.0	90.0	90.0	2015
+103	Harry	9	370.0	95.0	95.0	85.0	95.0	2015
+104	James	9	350.0	84.0	90.0	86.0	90.0	2015
+105	Rohit	9	362.0	92.0	98.0	82.0	90.0	2015
+
+CREATE TABLE Student ( id int, name String, class int, total_marks double,math double,english doube,physis double,chemistry double,year int)
+    ROW FORMAT DELIMITED
+    FIELDS TERMINATED BY ‘\t’ 
+ 
+LOAD DATA INPATH '/home/training/student_record.txt' 
+     INTO TABLE Student;
+
+package UDF;
+
+import org.apache.hadoop.hive.ql.exec.UDF;
+
+public class GetMaxMarks extends UDF{
+
+	public double evaluate (double math,double eng,double physics,double chemis )
+	{
+		double maxMarks=math;
+		if(eng>maxMarks)
+		{
+			maxMarks = eng;
+		}
+		if(physics>maxMarks)
+		{
+			maxMarks=physics;
+		}
+		if(chemis>maxMarks)
+		{
+			maxMarks=chemis;
+		}		
+		return maxMarks;
+	}
+}
+
+
+hive > add jar /home/training/hive-udf.jar
+
+hive > create temporary function getMaxMarks as 'GetMaxMarks'
+
+select getMaxMarks( name ) from fruits;
+
+=============================================================================
+
+package UDAF;
+
+import org.apache.hadoop.hive.ql.exec.UDAF;
+import org.apache.hadoop.hive.ql.exec.UDAFEvaluator;
+import org.apache.hadoop.hive.serde2.io.DoubleWritable;
+
+public class GetMeanMarks extends UDAF{
+	public static class GetIntMeanEvaluator implements UDAFEvaluator
+	{
+	
+		PartialResult part; 
+		
+		public void init()
+		{
+			part = null;
+		}
+		
+		public boolean iterate(DoubleWritable value)
+		{
+			if (value == null)
+			{
+				return true;
+			}
+			if(part == null)
+			{
+				part = new PartialResult();
+			}
+			part.result = part.result + value.get();
+			part.count++;
+			return true;
+		}
+		
+		public PartialResult terminatePartial()
+		{
+			return part;
+		}
+		
+		public boolean merge(PartialResult otherFile)
+		{
+			if(otherFile == null)
+			{
+				return true;
+			}
+			if(part == null)
+			{
+				part= new PartialResult();
+			}
+			part.result = part.result + otherFile.result;
+			part.count = part.count + otherFile.count;
+			return true;
+		}
+		
+		public DoubleWritable terminate()
+		{
+			if ( part == null)
+			{
+				return null;
+			}
+			return new DoubleWritable( (part.result)/part.count);
+		}
+
+	}
+}
+
+
+package UDAF;
+
+public class PartialResult {
+	double result;
+	int count;
+}
+
+hive > add jar /home/training/hive-udf.jar;
+
+hive > create temporary function getMeanMarks as 'GetMeanMarks';
+
+select getMaxMarks( name ) from Student;
+
+=============================================================================
+Create a file name book_details.txt
+
+1001	38752984,Who Moved My Cheese ?,Spencer Johnson	Friction
+1002	12121212,The Power of Positive Thinking,Norman Vincent	Philosophy
+
+
+CREATE TABLE Book ( book_id int, book_details String, genres string )
+    ROW FORMAT DELIMITED
+    FIELDS TERMINATED BY ‘\t’ 
+ 
+LOAD DATA INPATH '/home/training/book_details.txt' 
+     INTO TABLE Book;
+
+package UDTF;
+
+import java.util.ArrayList;
+
+import org.apache.hadoop.hive.ql.metadata.HiveException;
+import org.apache.hadoop.hive.ql.udf.generic.GenericUDTF;
+import org.apache.hadoop.hive.serde2.objectinspector.ObjectInspector;
+import org.apache.hadoop.hive.serde2.objectinspector.ObjectInspectorFactory;
+import org.apache.hadoop.hive.serde2.objectinspector.PrimitiveObjectInspector;
+import org.apache.hadoop.hive.serde2.objectinspector.StructObjectInspector;
+import org.apache.hadoop.hive.serde2.objectinspector.PrimitiveObjectInspector.PrimitiveCategory;
+import org.apache.hadoop.hive.serde2.objectinspector.primitive.PrimitiveObjectInspectorFactory;
+
+public class ExpandBookDetail extends GenericUDTF{
+
+	private Object[] fwdObj = null;
+	private PrimitiveObjectInspector bookDtlOI = null;
+	
+	public StructObjectInspector initialize(ObjectInspector[] arg)
+	{
+		ArrayList<String> fieldNames = new ArrayList<String>();
+		ArrayList<ObjectInspector> fieldOIs = new ArrayList<ObjectInspector>();
+		
+		bookDtlOI = (PrimitiveObjectInspector) arg[0];
+		
+		fieldNames.add("ISBN");
+		fieldOIs.add(PrimitiveObjectInspectorFactory.getPrimitiveJavaObjectInspector(
+		PrimitiveCategory.INT));
+		
+		fieldNames.add("TITLE");
+		fieldOIs.add(PrimitiveObjectInspectorFactory.getPrimitiveJavaObjectInspector(
+		PrimitiveCategory.STRING));
+		
+		fieldNames.add("AUTHOR");
+		fieldOIs.add(PrimitiveObjectInspectorFactory.getPrimitiveJavaObjectInspector(
+		PrimitiveCategory.STRING));
+		
+		fwdObj = new Object[3];
+		return ObjectInspectorFactory.getStandardStructObjectInspector(
+				fieldNames, fieldOIs);
+	}
+	
+	public void process(Object[] record) throws HiveException
+	{
+		String bookDtl = bookDtlOI.getPrimitiveJavaObject(record[0]).toString();
+		
+		String str[] = bookDtl.split(",");
+		fwdObj[0] = Integer.parseInt(str[0]);
+		fwdObj[1] = str[1];
+		fwdObj[2] = str[2];
+		
+		this.forward(fwdObj);
+		
+	}
+	
+	public void close()
+	{
+		  
+	}
+}
+
+
+hive > add jar /home/training/hive-udf.jar;
+
+hive > create temporary function expandBookDetail as 'ExpandBookDetail';
+
+select expandBookDetail( book_DETAILS ) as ( ISBN,Title,Author ) from Book;	 
+	 
+
+	 
+Import and Export using Sqoop from RDBMS to HIVE ::::::
+==========================================================================================================================================================
+
+sqoop import \
+   --connect "jdbc:mysql://localhost:3306/training" \
+  --username training \
+  --password training \
+  --table Movies \
+  --hive-import \
+  --hive-overwrite \
+  --hive-table userdb.movies \
+  --hive-home /user/hive/warehouse \
+  -m 1
+
+Export :
+==========================================================================================================================================================
+
+1.   Create contacthive.csv file which has simple data with 4 columns separated by comma
+
+
+    1,MahendraSingh,Dhoni,mahendra@bcci.com
+    2,Virat,Kohali,virat@bcci.com
+    5,Sachin,Tendulkar,sachin@bcci.com
+
+2.   Upload the contacthive.csv that you created in last step in HDFS at /tmp folder using following command
+
+
+    hdfs dfs -put contacthive.csv contacthive.csv
+
+3.   Define a contact_hive table that will have 4 columns, contactId, firstName, lastName and email, execute this command in hive console
+
+
+    CREATE TABLE contact_hive(contactId Int, firstName String, lastName String, email String) row format delimited fields terminated by "," stored as textfile;
+
+4.  In this step populate the contact_hive table that you created in the last step with the data from contacthive.csv file created in step 1. Execute this command in Hive console to populate contact_hive table
+
+    LOAD DATA INPATH  "/user/training/contacthive.csv" INTO TABLE contact_hive;
+
+    Since i am using Hive managed table, it will move the contacthive.csv file to Hive managed directory in case of Hortonworks that directory is /apps/hive/warehouse, You can verify that by executing following command on HDFS
+
+
+5.  hdfs dfs -ls /user/hive/warehouse/contact_hive
+
+6.  Before you export data into RDBMS, you will have to create the table in mysql, use following command to create the CONTACT table in mysql.
+
+
+
+    CREATE TABLE CONTACT (
+          contactid INTEGER NOT NULL ,
+          firstname VARCHAR(50),
+          lastname  VARCHAR(50),
+          email varchar(50)
+    );
+
+7.  Now last step is to execute sqoop export command that exports data from hive/hdfs directory to database
+
+
+    sqoop export --connect jdbc:mysql://localhost/test --table CONTACT --export-dir /user/hive/warehouse/contact_hive
+
+==========================================================================================================================================================
+
+

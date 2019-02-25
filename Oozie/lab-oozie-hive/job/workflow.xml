@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-16" standalone="no"?>
+<workflow-app xmlns="uri:oozie:workflow:0.2" name="hive-action">
+    <start to="hive-node"/>
+    <action name="hive-node">
+        <hive xmlns="uri:oozie:hive-action:0.2">
+            <job-tracker>${jobTracker}</job-tracker>
+            <name-node>${nameNode}</name-node>
+            <prepare>
+                <delete path="${OUTPUT}"/>
+            </prepare>
+         <job-xml>${baseDir}/job/hive-site.xml</job-xml>
+	<configuration>
+                 <property>
+                     <name>oozie.log.hive.level</name>
+                     <value>DEBUG</value>
+                 </property>
+                 <property>
+                     <name>oozie.hive.defaults</name>
+
+		<value>${baseDir}/job/hive-default.xml</value>
+                 </property>
+             </configuration>
+	    <script>sample.hql</script>
+		
+        </hive>
+        <ok to="end"/>
+        <error to="fail"/>
+    </action>
+    
+    <kill name="fail">
+        <message>Hive failed, error message[${wf:errorMessage(wf:lastErrorNode())}]</message>
+    </kill>
+    <end name="end"/>
+</workflow-app>

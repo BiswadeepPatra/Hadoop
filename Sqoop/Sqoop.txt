@@ -1,0 +1,563 @@
+﻿#https://www.youtube.com/watch?v=pWVYxyBvyYw
+#https://community.hortonworks.com/articles/70258/sqoop-performance-tuning.html
+
+Sqoop Theory :
+
+1 ) Sqoop is built on the top of Mapreduce
+2 ) Sqoop is always running with only mapper but not with reducer
+3 ) Sqoop is always working with 4 mapper . If we want we can even set our 	own required no of mapper.
+4 ) Sqoop can import or export only data but not schema.
+
+==========================================================================================
+How to connect with Mysql 
+==========================================================================================
+
+1. Log on to MySql
+mysql --user=training --password=training
+
+2. See databases in mysql
+show databases;
+
+3. Now use one database from list of databases
+use training;
+
+4. See all the tables from the database
+show tables;
+
+5. Describe the movie table 
+describe Movies;
+
+6. Display all row and columns from movie table
+select * from Movies;
+
+7. Review the structure and contents of the movie table for first 5 rows.
+select * from Movies limit 2;
+
+8. Describe the movierating table
+desc movierating
+
+9. Review the structure and contents of the movierating table for first 5 rows.
+select * from movierating limit 5;
+
+10. To quit from MySql
+quit;
+
+
+==========================================================================================
+
+1. To see the sqoop version:
+sqoop version
+
+2. Show the commands available in sqoop:
+sqoop help
+
+3. Show the commands available in sqoop import
+sqoop help import
+
+4. List the databases (schemas) in database server:
+sqoop list-databases --connect jdbc:mysql://localhost --username training --password training
+
+5. List the tables in the training database:
+sqoop list-tables --connect jdbc:mysql://localhost/training --username training --password training
+
+6. List the databases (schemas) in database server:
+sqoop eval --connect jdbc:mysql://localhost --username training --password training --query "show databases"
+
+7. List the tables in the training database:
+sqoop eval --connect jdbc:mysql://localhost/training --username training --password training --query "show tables"
+
+8. Review the structure and contents of the movie table for first 5 rows.
+sqoop eval --connect jdbc:mysql://localhost/training --username training --password training --query "select * from Movies limit 1"
+
+
+9. Import the movie tables into Hadoop
+sqoop import --connect jdbc:mysql://localhost/training --username training --password training --table Movies
+
+Default feature:
+Movies  
+4 files
+part-m-00001,..
+columns value will separated by ","
+
+10. Import the movie tables into Target Directory
+sqoop import --connect jdbc:mysql://localhost/training --username training --password training --table Movies --fields-terminated-by '\t' --target-dir Samyak -m 1
+
+11. Import the movie tables into Warehouse Directory
+sqoop import --connect jdbc:mysql://localhost/training --username training --password training --table Movies --fields-terminated-by '\t' --warehouse-dir Anup -m 1
+
+12. To import part of the data from the table by using where clause
+sqoop import --connect jdbc:mysql://localhost/training --username training --password training --table Movies --fields-terminated-by '\t' --target-dir sqoop_import --columns "movieid,movie_name" --where "movieid < 20" -m 1
+
+13. To import the specific columns & rows from the table
+sqoop import --connect jdbc:mysql://localhost/training --username training --password training --target-dir sqoop_import_new_1 --query "select movieid,movie_name from Movies where movieid <20 and \$CONDITIONS" -m 1
+
+14. To import part of the data from the table by using where clause
+sqoop import --connect jdbc:mysql://localhost/training --username training --password training --target-dir sqoop_import --query "select * from Movies where movieid =1 and \$CONDITIONS" -m 1
+
+sqoop import --connect jdbc:mysql://localhost/training --username training --password training --target-dir sqoop_import --query "SELECT * FROM Movies WHERE \$CONDITIONS limit 10" -m 1
+
+=========================================================================================
+						In Cloudera Quick Start VM 5.5 and above
+=========================================================================================
+How Append will work:
+
+sqoop import \
+  --num-mappers 1 \
+  --connect "jdbc:mysql://quickstart.cloudera:3306/retail_db" \
+  --username=retail_dba \
+  --password=cloudera \
+  --table departments \
+  --target-dir departments \
+  --fields-terminated-by '|' \
+  --lines-terminated-by '\n' \
+
+sqoop import \
+  --num-mappers 1 \
+  --connect "jdbc:mysql://quickstart.cloudera:3306/retail_db" \
+  --username=retail_dba \
+  --password=cloudera \
+  --table departments \
+  --target-dir departments \
+  --apend \
+  --fields-terminated-by '
+  --lines-terminated-by '\n' \
+
+==================================================================================================================================================================================
+
+1. Log on to MySql
+mysql --user=training --password=training
+
+2. See databases in mysql
+show databases;
+
+3. Now use one database from list of databases
+use training;
+
+2. Drop the employee table if exits
+drop table employee;
+
+3. Create the employee table
+CREATE TABLE employee ( id INT, name VARCHAR(20), designation VARCHAR(20),salary INT,dept VARCHAR(10));
+
+4. Insert the values in employee table
+insert into employee values ( 1201,'Gopal','Manager',50000,'TP' );
+insert into employee values ( 1202,'Manisha','Preader',50000,'TP' );
+insert into employee values ( 1203,'Kalil','Php dev',30000,'AC' );
+insert into employee values ( 1204,'Prasanth','Php dev',30000,'AC' );
+insert into employee values ( 1205,'Kranthi','Admin',20000,'TP' );
+
+5. Import the employee tables into Hadoop
+sqoop import --connect jdbc:mysql://localhost/training --username training --password training --table employee
+
+6. Import the employee tables into Hadoop
+sqoop import --connect jdbc:mysql://localhost/training --username training --password training --table employee --split-by id
+
+7. Import the employee tables into Hadoop
+sqoop import --connect jdbc:mysql://localhost/training --username training --password training --table employee -m 1
+
+8. Import the employee tables into Hadoop
+sqoop import --connect jdbc:mysql://localhost/training --username training --password training --table employee --target-dir Samyak_Empl --split-by designation
+
+=========================================================================================
+						In Cloudera Quick Start VM 5.5 and above
+=========================================================================================
+sqoop import \
+  --num-mappers 1 \
+  --connect "jdbc:mysql://quickstart.cloudera:3306/retail_db" \
+  --username=retail_dba \
+  --password=cloudera \
+  --query "select * from orders join order_items on orders.order_id = order_items.order_item_order_id where \$CONDITIONS" \
+  --target-dir /user/cloudera/sqoop_import_join \
+  --split-by order_id
+
+==================================================================================================================================================================================
+1. Log on to MySql
+mysql --user=training --password=training
+
+2. See databases in mysql
+show databases;
+
+3. Now use one database from list of databases
+use training;
+
+2. Drop the employee table if exits
+drop table employee;
+
+3. Create the employee table
+drop table employee;
+
+3. Create the employee table
+CREATE TABLE employee ( id INT primary key, name VARCHAR(20));
+
+4. Insert the values in employee table
+insert into employee values ( 1,'Anup');
+insert into employee values ( 2,'Sangram');
+insert into employee values ( 3,'Sonia');
+insert into employee values ( 4,'Suman');
+insert into employee values ( 5,'Debdep');
+insert into employee values ( 6,'Abir');
+insert into employee values ( 7,'Surajit');
+insert into employee values ( 8,'Raj');
+
+5. Import the employee tables into Hadoop
+sqoop import --connect jdbc:mysql://localhost/training --username training --password training --table employee --target-dir Tapas_New
+
+4. Insert one more value in employee table
+insert into employee values ( 8000,'Samyak');
+
+5. Import the employee tables into Hadoop
+sqoop import --connect jdbc:mysql://localhost/training --username training --password training --table employee --target-dir Anup_New
+
+8000/4 == 2000
+
+1-2000 file1
+2001 - 4000 --file2
+4001-6000 file3
+
+5. Import the employee tables into Hadoop using customise boundary condition
+sqoop import --connect jdbc:mysql://localhost/training --username training --password training --table employee --boundary-query "select 2,4 from employee"
+
+==================================================================================================================================================================================
+
+1. Log on to MySql
+mysql --user=training --password=training
+
+2. See databases in mysql
+show databases;
+
+3. Now use one database from list of databases
+use training;
+
+2. Drop the employee if exits
+drop table employee;
+
+3. Create the employee table
+drop table employee;
+
+3. Create the employee table
+drop table employee;
+
+3. Create the employee table
+CREATE TABLE employee ( id INT NOT NULL PRIMARY KEY, name VARCHAR(20), designation VARCHAR(20),salary INT,dept VARCHAR(10));
+
+4. Insert the values in employee table
+insert into employee values ( 1201,'Gopal','Manager',50000,'TP' );
+insert into employee values ( 1202,'Manisha','Preader',50000,'TP' );
+insert into employee values ( 1203,'Kalil','Php dev',30000,'AC' );
+insert into employee values ( 1204,'Prasanth','Php dev',30000,'AC' );
+insert into employee values ( 1205,'Kranthi','Admin',20000,'TP' );
+
+5. import the movie tables into Hadoop
+sqoop import --connect jdbc:mysql://localhost/training --username training --password training --table employee --fields-terminated-by '\t' --target-dir Suraj -m 1
+
+4. Insert the values in employee table
+insert into employee values ( 1206,'Satish p','Grp des',20000,'GR' );
+insert into employee values ( 1204,'A Saha','Grp des',80000,'TP' );
+
+5. import the movie tables into Hadoop
+sqoop import --connect jdbc:mysql://localhost/training --username training --password training --table employee --target-dir Suraj -m 1 --incremental append --check-column id --last-value 1205
+
+=========================================================================================
+						In Cloudera Quick Start VM 5.5 and above
+=========================================================================================
+sqoop import \
+  --num-mappers 1 \
+  --connect "jdbc:mysql://quickstart.cloudera:3306/retail_db" \
+  --username=retail_dba \
+  --password=cloudera \
+  --table departments \
+  --target-dir departments 
+  
+  
+  insert into departments ( 10,Physics );
+  insert into departments ( 11,Chemistry );
+  insert into departments ( 12,Maths );
+  insert into departments ( 13,Science );
+  insert into departments ( 14,Engineering );
+ 
+sqoop import \
+  --num-mappers 1 \
+  --connect "jdbc:mysql://quickstart.cloudera:3306/retail_db" \
+  --username=retail_dba \
+  --password=cloudera \
+  --table departments \
+  --target-dir /user/cloudera/departments \
+  --append \
+  --check-column "department_id" \
+  --incremental append \
+  --last-value 7
+
+=========================================================================================
+					  In Cloudera Quick Start VM 5.5 and above
+=========================================================================================
+1. Log on to MySql
+mysql --u root -p
+cloudera
+
+2. See databases in mysql
+show databases;
+
+3. Now use one database from list of databases
+use retail_db;
+
+4. Create the departments_new table
+create table departments_new ( department_id int(11) primary key, department_name varchar(45),created_date TIMESTAMP DEFAULT NOW());
+
+5. Insert the data into departments_new from department table
+insert into departments_new select d.*, null from departments d;
+
+6. import the departments_new tables into Hadoop
+sqoop import \
+  --num-mappers 1 \
+  --connect "jdbc:mysql://quickstart.cloudera:3306/retail_db" \
+  --username=retail_dba \
+  --password=cloudera \
+  --table departments_new \
+  --target-dir /user/cloudera/departments_new 
+
+7. Insert the values in departments_new table
+insert into departments_new values ( 110, 'Civil', null );
+insert into departments_new values ( 111, 'Mechanical', null );
+insert into departments_new values ( 112, 'Automobile', null );
+insert into departments_new values ( 113, 'Pharma', null );
+insert into departments_new values ( 114, 'Social Engineering', null );
+
+8. Update the values in departments_new table
+update departments_new set department_name='Testing Timestamp1',created_date=null where department_id = 7
+
+9. import the departments_new tables into Hadoop
+sqoop import \
+  --num-mappers 1 \
+  --connect "jdbc:mysql://quickstart.cloudera:3306/retail_db" \
+  --username=retail_dba \
+  --password=cloudera \
+  --table departments_new \
+  --target-dir /user/cloudera/departments_new \
+  --check-column "created_date" \
+  --incremental lastmodified \
+  --split-by department_id \
+  --last-value "2017-07-21 00:00:00"
+   
+=========================================================================================
+						   In Cloudera Quick Start VM 5.5 and above
+=========================================================================================
+--Merge process begins
+
+1. Log on to MySql
+mysql --u root -p
+cloudera
+
+2. See databases in mysql
+show databases;
+
+3. Now use one database from list of databases
+use retail_db;
+
+4. Create the categories_new table
+create table categories_new ( category_id int(11) primary key,category_department_id int(11), category_name varchar(45),created_date TIMESTAMP DEFAULT NOW());
+
+5. Insert the data into categories_new from categories table
+insert into categories_new select cat.*, null from categories cat;
+
+hadoop fs -mkdir /user/cloudera/sqoop_merge
+
+--Initial load
+6. Initial import the categories_new tables into Hadoop
+sqoop import \
+  --connect "jdbc:mysql://quickstart.cloudera:3306/retail_db" \
+  --username=retail_dba \
+  --password=cloudera \
+  --table categories_new \
+  --as-textfile \
+  --target-dir=/user/cloudera/sqoop_merge/categories
+
+--Validate
+7. Validate the categories_new tables data into Hadoop
+sqoop eval --connect "jdbc:mysql://quickstart.cloudera:3306/retail_db" \
+  --username retail_dba \
+  --password cloudera \
+  --query "select count(*) from categories_new" 
+
+8. Another way to validate the categories_new tables data into Hadoop
+hadoop fs -cat /user/cloudera/sqoop_merge/categories/part*
+
+--update
+9. Update the categories_new tables using sqoop command
+sqoop eval --connect "jdbc:mysql://quickstart.cloudera:3306/retail_db" \
+  --username retail_dba \
+  --password cloudera \
+  --query "update categories_new set category_name='Testing Football',created_date=null where category_id = 1"
+  
+sqoop eval --connect "jdbc:mysql://quickstart.cloudera:3306/retail_db" \
+  --username retail_dba \
+  --password cloudera \
+  --query "update categories_new set category_name='Testing Soccer',created_date=null where category_id = 2"
+
+--Insert
+10. Insert the values in categories_new tables using sqoop command
+sqoop eval --connect "jdbc:mysql://quickstart.cloudera:3306/retail_db" \
+  --username retail_dba \
+  --password cloudera \
+  --query "insert into categories_new values (59, 8,'Inserting for merge',null)"
+
+11. Validate the categories_new tables data using sqoop command
+sqoop eval --connect "jdbc:mysql://quickstart.cloudera:3306/retail_db" \
+  --username retail_dba \
+  --password cloudera \
+  --query "select * from categories_new"
+
+--New load
+12. Incremental import the categories_new tables into Hadoop
+sqoop import \
+  --connect "jdbc:mysql://quickstart.cloudera:3306/retail_db" \
+  --username=retail_dba \
+  --password=cloudera \
+  --table categories_new \
+  --as-textfile \
+  --target-dir=/user/cloudera/sqoop_merge/categories_delta \
+  --check-column "created_date" \
+  --incremental lastmodified \
+  --split-by category_id \
+  --last-value "2017-08-31 20:12:05"
+
+13. Validate the categories_new tables data into Hadoop
+hadoop fs -cat /user/cloudera/sqoop_merge/categories_delta/part*
+
+--Merge
+14. Merge the two folder categories and  categories_stage
+sqoop merge --merge-key category_id \
+  --new-data /user/cloudera/sqoop_merge/categories_delta \
+  --onto /user/cloudera/sqoop_merge/categories \
+  --target-dir /user/cloudera/sqoop_merge/categories_stage \
+  --class-name categories_new \
+  --jar-file /tmp/sqoop-cloudera/compile/1664da17773c798e4f051fa5bf6ccd34/categories_new.jar
+
+15. Validate the categories_stage data into Hadoop
+hadoop fs -cat /user/cloudera/sqoop_merge/categories_stage/part*
+
+=========================================================================================
+					     How to export : In Cloudera Quick Start VM 5.5 and above
+=========================================================================================
+employeeDetails -- HDFS
+
+1201,gopal,manager,50000,TP
+1202,manisha,preader,50000,TP
+1203,kalil,php dev,30000,AC
+1204,prasanth,php dev,30000,AC
+1205,kranthi,admin,20000,TP
+1206,satish p,grp des,20000,GR
+
+drop table employee;
+
+CREATE TABLE employee ( id INT NOT NULL PRIMARY KEY, name VARCHAR(20), designation VARCHAR(20),salary INT,dept VARCHAR(10));
+
+sqoop export --connect jdbc:mysql://quickstart.cloudera:3306/retail_db --username retail_dba --password cloudera --table employee --export-dir /user/cloudera/employeeDetails
+
+===========================================================================================
+Create one file in local as test.csv
+  
+2,fitness
+3,footwear
+12,mathematics
+13,science
+14,engineering
+1000,management
+
+create table departments ( department_id int(11) , department_name varchar(45));
+
+sqoop export --connect jdbc:mysql://quickstart.cloudera:3306/retail_db --username retail_dba --password cloudera --table departments --export-dir /user/cloudera/test.csv --update-key department_id --update-mode allowinsert
+
+Now we need to update as test.csv
+
+2,Fitness
+3,Footwear
+12,Mathematics
+13,Science
+14,Engineering
+1000,Management
+2000,Quality Check
+
+sqoop export --connect jdbc:mysql://quickstart.cloudera:3306/retail_db  --username retail_dba --password cloudera --table departments --export-dir /user/cloudera/test.csv --batch -m 1 --update-key department_id --update-mode updateonly
+
+==================================================================================================================================================================================
+sqoop job --create sqoop_job \
+  -- import \
+  --connect "jdbc:mysql://quickstart.cloudera:3306/retail_db" \
+  --username=retail_dba \
+  --password=cloudera \
+  --table categories \
+  --target-dir=/user/cloudera/sqoop_import/categoies \
+  --fields-terminated-by '|' \
+  --lines-terminated-by '\n'
+
+sqoop job --list
+
+sqoop job --show sqoop_job 
+
+sqoop job --exec sqoop_job 
+
+==================================================================================================================================================================================
+insert into depatments value ( 9999,'"Data Science"');
+
+sqoop import \
+  --connect "jdbc:mysql://quickstart.cloudera:3306/retail_db" \
+  --username=retail_dba \
+  --password=cloudera \
+  --table departments \
+  --as-textfile \
+  --target-dir=/user/cloudera/sqoop_import/departments_encloseby_new \
+  --enclosed-by \' \
+  --escaped-by \\ \
+  --fields-terminated-by '~' \
+  --lines-terminated-by : \
+  -m 1
+    
+=========================================================================================
+sqoop import \
+  --connect "jdbc:mysql://quickstart.cloudera:3306/retail_db" \
+  --username=retail_dba \
+  --password=cloudera \
+  --table order_items \
+  --as-textfile \
+  --target-dir=/user/cloudera/sqoop_merge/order_items_text \
+  -m 1
+  
+  
+sqoop import \
+  --connect "jdbc:mysql://quickstart.cloudera:3306/retail_db" \
+  --username=retail_dba \
+  --password=cloudera \
+  --table order_items \
+  --as-sequencefile \
+  --target-dir=/user/cloudera/sqoop_merge/order_items_sequence \
+  -m 1
+  
+sqoop import \
+  --connect "jdbc:mysql://quickstart.cloudera:3306/retail_db" \
+  --username=retail_dba \
+  --password=cloudera \
+  --table order_items \
+  --as-avrodatafile \
+  --target-dir=/user/cloudera/sqoop_merge/order_items_avro \
+  -m 1
+  
+sqoop import \
+  --connect "jdbc:mysql://quickstart.cloudera:3306/retail_db" \
+  --username=retail_dba \
+  --password=cloudera \
+  --table order_items \
+  --as-parquetfile \
+  --target-dir=/user/cloudera/sqoop_merge/order_items_parquet \
+  -m 1
+
+==================================================================================================================================================================================
+sqoop import-all-tables \
+  --connect "jdbc:mysql://quickstart.cloudera:3306/retail_db" \
+  --username=retail_dba \
+  --password=cloudera \
+  --warehouse-dir /user/cloudera/sqoop_import_all_tables \
+  --exclude-tables  orders,order_items \
+  -m 1
+  
+=========================================================================================
+=========================================================================================
