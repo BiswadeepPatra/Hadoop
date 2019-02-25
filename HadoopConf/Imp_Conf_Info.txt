@@ -1,0 +1,4 @@
+1. /etc/hadoop/conf/core-site.xml =Name node name(Fs.defaultfs)
+2. /etc/hadoop/conf/hdfs-site.xml=blocksize and replication factor
+3. /etc/hadoop/conf/yarn-site.xml =RM Address
+4. /etc/hadoop/conf/spark-env.sh = num executor,cores,driver memory,over head
